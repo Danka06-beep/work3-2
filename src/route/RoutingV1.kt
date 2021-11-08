@@ -68,7 +68,7 @@ class RoutingV1(val userService : UserService) {
                 }
                     post("/authentication") {
                         val input = call.receive<AuthenticationRequestDto>()
-                        val response = userService.addUser(input.username, input.password)
+                        val response = userService.authenticate(input)
                         call.respond(response)
                     }
                     post("/registration") {

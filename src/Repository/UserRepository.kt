@@ -9,5 +9,6 @@ interface UserRepository {
     suspend fun getByUsername(username: String): UserModel?
     suspend fun save(item: UserModel): UserModel
     suspend fun addUser(item: UserModel): Boolean
+    suspend fun getSizeListUser(): Long
 
 }

@@ -30,7 +30,7 @@ class UserService (
 
         val model = repo.getById(id) ?: throw NotFoundException()
         if (!passwordEncoder.matches(input.old, model.password)) {
-            throw PasswordChangeException("Wrong password!")
+            throw PasswordChangeException("Неверный пароль")
         }
         val copy = model.copy(password = passwordEncoder.encode(input.new))
         repo.save(copy)
@@ -39,7 +39,7 @@ class UserService (
     suspend fun authenticate(input: AuthenticationRequestDto): AuthenticationResponseDto {
         val model = repo.getByUsername(input.username) ?: throw NotFoundException()
         if (!passwordEncoder.matches(input.password, model.password)) {
-            throw PasswordChangeException("Wrong password")
+            throw PasswordChangeException("Неверный пароль")
         }
         val token = tokenService.generate(model.id)
 
@@ -48,7 +48,7 @@ class UserService (
 
     suspend fun addUser(username: String, password: String): AuthenticationResponseDto {
         val model = UserModel(
-            id = 0, //repo.getSizeListUser().toLong(),
+            id = repo.getSizeListUser(),
             username = username,
             password = passwordEncoder.encode(password)
         )

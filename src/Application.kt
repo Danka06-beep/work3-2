@@ -1,5 +1,7 @@
 package com.kuzmin
 
+import com.kuzmin.Exception.PasswordChangeException
+import com.kuzmin.Exception.UseraddException
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.request.*
@@ -90,6 +92,13 @@ fun Application.module(testing: Boolean = false) {
         exception<Throwable> {
             call.respond(HttpStatusCode.InternalServerError)
         }
+        exception<UseraddException> {
+            call.respond(HttpStatusCode.BadRequest)
+        }
+        exception<PasswordChangeException> {
+            call.respond(HttpStatusCode.BadRequest)
+        }
+
     }
     install(Routing) {
         val routing by kodein().instance<RoutingV1>()
