@@ -93,10 +93,10 @@ fun Application.module(testing: Boolean = false) {
             call.respond(HttpStatusCode.InternalServerError)
         }
         exception<UseraddException> {
-            call.respond(HttpStatusCode.BadRequest)
+            call.respond(HttpStatusCode.BadRequest, it.message.toString())
         }
         exception<PasswordChangeException> {
-            call.respond(HttpStatusCode.BadRequest)
+            call.respond(HttpStatusCode.BadRequest, it.message.toString())
         }
 
     }

@@ -4,28 +4,44 @@ import com.kuzmin.Model.PostModel
 import com.kuzmin.Model.UserModel
 import com.kuzmin.Repository.PostRepository
 import com.kuzmin.dto.*
+import com.kuzmin.service.FileService
 import com.kuzmin.service.UserService
+import com.sun.deploy.util.SessionState.save
+import com.sun.javaws.LocalInstallHandler.save
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.features.*
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import org.kodein.di.generic.instance
 import org.kodein.di.ktor.kodein
 
-class RoutingV1(val userService : UserService) {
+class RoutingV1(val userService : UserService, private val staticPath: String, private val fileService: FileService) {
 
     fun setup(configuration: Routing) {
 
         with(configuration) {
             val repo by kodein().instance<PostRepository>()
             route("/api/v1") {
+                static("/static") {
+                    files(staticPath)
+                }
                 get("/") {
                     call.respondText("Server working", ContentType.Text.Plain)
                 }
+
                 authenticate {
+                    route("/media") {
+                        post {
+                            val multipart = call.receiveMultipart()
+                            val response = fileService.save(multipart)
+                            call.respond(response)
+
+                        }
+                    }
                     route("/me") {
                         get {
                             val me = call.authentication.principal<UserModel>()
@@ -76,6 +92,11 @@ class RoutingV1(val userService : UserService) {
                         val response = userService.addUser(input.username, input.password)
                         call.respond(response)
                     }
+                post("/changePassword"){
+                    val input = call.receive<PasswordChangeRequestDto>()
+                    val response = userService.changePassword(input.old, input.new)
+                    call.respond(response)
+                }
             }
         }
     }
