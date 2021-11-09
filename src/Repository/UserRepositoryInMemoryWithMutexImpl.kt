@@ -2,6 +2,7 @@ package com.kuzmin.Repository
 
 import com.google.gson.Gson
 import com.kuzmin.Model.UserModel
+import com.kuzmin.UserData
 import io.ktor.http.ContentDisposition.Companion.File
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -9,7 +10,7 @@ import java.io.File
 
 class UserRepositoryInMemoryWithMutexImpl : UserRepository {
     private var nextId = 1L
-    private val items = mutableListOf<UserModel>()
+    private val items = UserData.getDataBase()
     private val mutex = Mutex()
     override suspend fun getAll(): List<UserModel> {
         mutex.withLock {

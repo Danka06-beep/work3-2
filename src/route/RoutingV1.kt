@@ -81,6 +81,14 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                         val response = repo.new(request.txt.toString(), request.author) ?: throw NotFoundException()
                         call.respond(response)
                     }
+                    post("/changePassword"){
+                        val input = call.receive<PasswordChangeRequestDto>()
+                        val me = call.authentication.principal<UserModel>()
+                        if(me != null) {
+                            val response = userService.changePassword(input.old, input.new, me.id)
+                            call.respond("Пароль успешно изменён")
+                        }
+                    }
                 }
                     post("/authentication") {
                         val input = call.receive<AuthenticationRequestDto>()
@@ -92,14 +100,6 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                         val response = userService.addUser(input.username, input.password)
                         call.respond(response)
                     }
-                post("/changePassword"){
-                    val input = call.receive<PasswordChangeRequestDto>()
-                    val me = call.authentication.principal<UserModel>()
-                    if(me != null) {
-                        val response = userService.changePassword(input.old, input.new, me.id)
-                        call.respond("Пароль успешно изменён")
-                    }
-                }
             }
         }
     }
