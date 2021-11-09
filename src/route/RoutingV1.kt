@@ -94,7 +94,7 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                     }
                 post("/changePassword"){
                     val input = call.receive<PasswordChangeRequestDto>()
-                    val response = userService.changePassword(input.old, input.new)
+                    val response = userService.changePassword(input.old,input.new)
                     call.respond(response)
                 }
             }
