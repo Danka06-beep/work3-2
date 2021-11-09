@@ -1,13 +1,10 @@
 package com.kuzmin.route
 
-import com.kuzmin.Model.PostModel
 import com.kuzmin.Model.UserModel
 import com.kuzmin.Repository.PostRepository
 import com.kuzmin.dto.*
 import com.kuzmin.service.FileService
 import com.kuzmin.service.UserService
-import com.sun.deploy.util.SessionState.save
-import com.sun.javaws.LocalInstallHandler.save
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.features.*

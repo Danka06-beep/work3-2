@@ -61,6 +61,7 @@ class UserRepositoryInMemoryWithMutexImpl : UserRepository {
                 -1 -> {
                     val copy = item.copy(id = items.size.toLong())
                     items.add(copy)
+                    File("user.json").writeText(Gson().toJson(items))
                     true
                 }
                 else -> {

@@ -53,6 +53,7 @@ class PostRepositoryInMemoryConcurrentImpl : PostRepository {
                 val item = items[index]
                 val copy = item.copy(likeTxt = item.likeTxt + 1)
                 items[index] = copy
+                File("pst.json").writeText(Gson().toJson(items))
                 copy
             }
         }
@@ -65,6 +66,7 @@ class PostRepositoryInMemoryConcurrentImpl : PostRepository {
                 val item = items[index]
                 val copy = item.copy(likeTxt = item.likeTxt - 1)
                 items[index] = copy
+                File("pst.json").writeText(Gson().toJson(items))
                 copy
             }
         }
