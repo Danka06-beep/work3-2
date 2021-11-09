@@ -13,8 +13,6 @@ import io.ktor.features.*
 import org.springframework.security.crypto.password.PasswordEncoder
 
 class UserService (
-    private val id: Long,
-    private val  input: PasswordChangeRequestDto,
     private val repo: UserRepository,
     private val tokenService: JWTTokenService,
     private val passwordEncoder: PasswordEncoder
@@ -28,13 +26,13 @@ class UserService (
         return UserResponseDto.fromModel(model)
     }
 
-    suspend fun changePassword(old: String, new: String) {
+    suspend fun changePassword(old: String, new: String, id: Long) {
 
         val model = repo.getById(id) ?: throw NotFoundException()
-        if (!passwordEncoder.matches(input.old, model.password)) {
+        if (!passwordEncoder.matches(old, model.password)) {
             throw PasswordChangeException("Неверный пароль")
         }
-        val copy = model.copy(password = passwordEncoder.encode(input.new))
+        val copy = model.copy(password = passwordEncoder.encode(new))
         repo.save(copy)
     }
 
@@ -62,4 +60,3 @@ class UserService (
         return throw UseraddException("Такой логин уже зарегистрирован")
     }
 }
-

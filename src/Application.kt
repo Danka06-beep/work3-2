@@ -16,6 +16,7 @@ import com.kuzmin.Repository.PostRepositoryInMemoryConcurrentImpl
 import com.kuzmin.Repository.UserRepository
 import com.kuzmin.Repository.UserRepositoryInMemoryWithMutexImpl
 import com.kuzmin.route.RoutingV1
+import com.kuzmin.service.FileService
 
 import com.kuzmin.service.JWTTokenService
 import com.kuzmin.service.PostService
@@ -56,15 +57,14 @@ fun Application.module(testing: Boolean = false) {
         constant(tag = "upload-dir") with (environment.config.propertyOrNull("nscraft.upload.dir")?.getString() ?: throw ConfigurationException("Upload dir"))
         bind<PostRepository>() with singleton { PostRepositoryInMemoryConcurrentImpl() }
         bind<PostService>() with eagerSingleton { PostService(instance()) }
-        bind<RoutingV1>() with eagerSingleton { RoutingV1(instance()) }
+        bind<RoutingV1>() with eagerSingleton { RoutingV1(instance(),instance(tag = "upload-dir"),instance()) }
         bind<JWTTokenService>() with eagerSingleton { JWTTokenService() }
+        bind<FileService>() with eagerSingleton { FileService(instance(tag = "upload-dir")) }
         bind<PasswordEncoder>() with eagerSingleton { BCryptPasswordEncoder() }
         bind<UserRepository>() with eagerSingleton { UserRepositoryInMemoryWithMutexImpl() }
         bind<UserService>() with eagerSingleton {
             UserService(instance(), instance(), instance()).apply {
-                runBlocking {
-                    this@apply.addUser("dan", "1234")
-                }
+
             }
         }
     }

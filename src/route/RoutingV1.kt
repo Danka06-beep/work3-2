@@ -94,8 +94,11 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                     }
                 post("/changePassword"){
                     val input = call.receive<PasswordChangeRequestDto>()
-                    val response = userService.changePassword(input.old,input.new)
-                    call.respond(response)
+                    val me = call.authentication.principal<UserModel>()
+                    if(me != null) {
+                        val response = userService.changePassword(input.old, input.new, me.id)
+                        call.respond("Пароль успешно изменён")
+                    }
                 }
             }
         }

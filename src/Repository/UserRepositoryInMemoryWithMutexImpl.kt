@@ -1,8 +1,11 @@
 package com.kuzmin.Repository
 
+import com.google.gson.Gson
 import com.kuzmin.Model.UserModel
+import io.ktor.http.ContentDisposition.Companion.File
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.io.File
 
 class UserRepositoryInMemoryWithMutexImpl : UserRepository {
     private var nextId = 1L
@@ -38,11 +41,13 @@ class UserRepositoryInMemoryWithMutexImpl : UserRepository {
                 -1 -> {
                     val copy = item.copy(id = items.size.toLong())
                     items.add(copy)
+                    File("user.json").writeText(Gson().toJson(items))
                     copy
                 }
                 else -> {
                     val copy = items[index].copy(username = item.username, password = item.password)
-                    items.add(copy)
+                    items[index] = copy
+                    File("user.json").writeText(Gson().toJson(items))
                     copy
                 }
             }
