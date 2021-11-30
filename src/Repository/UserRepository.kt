@@ -10,5 +10,6 @@ interface UserRepository {
     suspend fun save(item: UserModel): UserModel
     suspend fun addUser(item: UserModel): Boolean
     suspend fun getSizeListUser(): Long
-
+    suspend fun addTokenDevice(tokenUser: String, tokenDevice: String): String
+    fun  findTokenDevice(username: String):String
 }

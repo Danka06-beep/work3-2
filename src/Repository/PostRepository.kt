@@ -1,5 +1,6 @@
 package com.kuzmin.Repository
 
+import com.kuzmin.Model.AttachmentModel
 import com.kuzmin.Model.PostModel
 
 interface PostRepository {
@@ -10,4 +11,10 @@ interface PostRepository {
     suspend fun likeById(id: Long): PostModel?
     suspend fun dislikeById(id: Long): PostModel?
     suspend fun new(txt: String?, author: String?): List<PostModel>
+    suspend fun repost(item: PostModel): PostModel?
+    suspend fun getfive():List<PostModel>
+    suspend fun getOld(id: Long): List<PostModel>
+    suspend fun newPost(txt: String?, attachment: AttachmentModel?, autorName: String?): List<PostModel>
+
 }
+

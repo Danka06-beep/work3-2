@@ -74,4 +74,20 @@ class UserRepositoryInMemoryWithMutexImpl : UserRepository {
     override suspend fun getSizeListUser(): Long {
         return items.size.toLong()
     }
+
+    override suspend fun addTokenDevice(tokenUser: String, tokenDevice: String): String {
+        mutex.withLock {
+            val index = items.indexOfFirst { it.token == tokenUser }
+            val copyUser = items[index].copy(tokenDevice = tokenDevice)
+            items[index] = copyUser
+            File("user.json").writeText(Gson().toJson(items))
+            return copyUser.username
+        }
+    }
+
+    override fun findTokenDevice(username: String): String {
+        val index = items.indexOfFirst { it.username == username }
+
+        return items[index].tokenDevice
+    }
 }

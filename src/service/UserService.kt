@@ -6,8 +6,6 @@ import com.kuzmin.Model.UserModel
 import com.kuzmin.Repository.UserRepository
 import com.kuzmin.dto.AuthenticationRequestDto
 import com.kuzmin.dto.AuthenticationResponseDto
-import com.kuzmin.dto.PasswordChangeRequestDto
-import com.kuzmin.dto.PostResponseDto.Companion.fromModel
 import com.kuzmin.dto.UserResponseDto
 import io.ktor.features.*
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -50,7 +48,8 @@ class UserService (
         val model = UserModel(
             id = repo.getSizeListUser(),
             username = username,
-            password = passwordEncoder.encode(password)
+            password = passwordEncoder.encode(password),
+            token = tokenService.generate(repo.getSizeListUser().toLong())
         )
         val checkingIsUser = repo.addUser(model)
         if (checkingIsUser) {
@@ -58,5 +57,11 @@ class UserService (
             return AuthenticationResponseDto(token)
         }
         return throw UseraddException("Такой логин уже зарегистрирован")
+    }
+    fun findTokenDevice(input: AuthenticationRequestDto): String {
+        return repo.findTokenDevice(input.username)
+    }
+    fun findTokenDeviceUser(input: String): String {
+        return repo.findTokenDevice(input)
     }
 }

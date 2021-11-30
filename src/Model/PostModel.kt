@@ -1,5 +1,7 @@
 package com.kuzmin.Model
 
+
+
 data class PostModel(
     val id: Long = 0,
     val author: String? = null,
@@ -18,8 +20,11 @@ data class PostModel(
     val dateRepost: Long? = null,
     val autorRepost: String? = null,
     var hidePost: Boolean = false,
-    var viewPost: Long = 0
-
+    var viewPost: Long = 0,
+    val autorId: Long = -1,
+    val postIsLike: ArrayList<Long> = ArrayList(),
+    val repost:PostModel?=null,
+    val attachment: AttachmentModel?= null
 
 )
 enum class PostType {
@@ -27,3 +32,7 @@ enum class PostType {
     YoutubeVideo,
     SponsoredPosts
 }
+enum class AttachmentType {
+    IMAGE
+}
+data class AttachmentModel(val id: String, val mediaType: AttachmentType = AttachmentType.IMAGE)

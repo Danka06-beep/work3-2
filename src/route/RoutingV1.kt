@@ -1,5 +1,6 @@
 package com.kuzmin.route
 
+import com.kuzmin.Model.PostModel
 import com.kuzmin.Model.UserModel
 import com.kuzmin.Repository.PostRepository
 import com.kuzmin.dto.*
@@ -78,25 +79,35 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                         val response = repo.new(request.txt.toString(), request.author) ?: throw NotFoundException()
                         call.respond(response)
                     }
-                    post("/changePassword"){
+                    post("/changePassword") {
                         val input = call.receive<PasswordChangeRequestDto>()
                         val me = call.authentication.principal<UserModel>()
-                        if(me != null) {
+                        if (me != null) {
                             val response = userService.changePassword(input.old, input.new, me.id)
                             call.respond("Пароль успешно изменён")
                         }
                     }
                 }
-                    post("/authentication") {
-                        val input = call.receive<AuthenticationRequestDto>()
-                        val response = userService.authenticate(input)
-                        call.respond(response)
-                    }
-                    post("/registration") {
-                        val input = call.receive<AuthenticationRequestDto>()
-                        val response = userService.addUser(input.username, input.password)
-                        call.respond(response)
-                    }
+                post("/authentication") {
+                    val input = call.receive<AuthenticationRequestDto>()
+                    val response = userService.authenticate(input)
+                    call.respond(response)
+                }
+                post("/registration") {
+                    val input = call.receive<AuthenticationRequestDto>()
+                    val response = userService.addUser(input.username, input.password)
+                    call.respond(response)
+                }
+                post("/repost") {
+                    val request = call.receive<PostResponseDto>()
+                    val model =
+                        PostModel(
+                            txt = request.txt,
+                            repost = request.repost
+                        )
+                    val response = repo.repost(model) ?: throw NotFoundException()
+                    call.respond(response)
+                }
             }
         }
     }

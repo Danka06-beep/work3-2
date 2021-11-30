@@ -1,5 +1,6 @@
 package com.kuzmin.dto
 
+import com.kuzmin.Model.AttachmentModel
 import com.kuzmin.Model.PostModel
 import com.kuzmin.Model.PostType
 
@@ -21,7 +22,9 @@ data class PostResponseDto(
     val dateRepost: Long? = null,
     val autorRepost: String? = null,
     var hidePost: Boolean = false,
-    var viewPost: Long = 0
+    var viewPost: Long = 0,
+    val repost:PostModel?=null,
+    val attachment: AttachmentModel? = null
 ) {
     companion object {
         fun fromModel(model: PostModel) = PostResponseDto(
@@ -42,7 +45,9 @@ data class PostResponseDto(
             dateRepost = model.dateRepost,
             autorRepost = model.autorRepost,
             hidePost = model.hidePost,
-            viewPost = model.viewPost
+            viewPost = model.viewPost,
+            repost = model.repost,
+            attachment = model.attachment
         )
     }
 }
