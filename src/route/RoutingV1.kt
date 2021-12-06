@@ -4,6 +4,9 @@ import com.kuzmin.Model.PostModel
 import com.kuzmin.Model.UserModel
 import com.kuzmin.Repository.PostRepository
 import com.kuzmin.dto.*
+import com.kuzmin.dto.MediaResponseDto.Companion.fromModel
+import com.kuzmin.dto.PostResponseDto.Companion.fromModel
+import com.kuzmin.dto.UserResponseDto.Companion.fromModel
 import com.kuzmin.service.FileService
 import com.kuzmin.service.UserService
 import io.ktor.application.*
@@ -46,6 +49,7 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                             call.respond(UserResponseDto.fromModel(me!!))
                         }
                     }
+
                     get {
                         val response = repo.getAll().map { PostResponseDto.fromModel(it) }
                         call.respond(response)
@@ -87,6 +91,44 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                             call.respond("Пароль успешно изменён")
                         }
                     }
+                    post("/repost") {
+                        val request = call.receive<PostResponseDto>()
+                        val model =
+                            PostModel(
+                                txt = request.txt,
+                                repost = request.repost
+                            )
+                        val response = repo.repost(model) ?: throw NotFoundException()
+                        call.respond(response)
+                    }
+                    post("/{id}/like"){
+                        val id = call.parameters["id"]?.toLongOrNull()
+                            ?: throw ParameterConversionException("id", "Long")
+                        val me = call.authentication.principal<UserModel>()
+                        val response = repo.likeById(id) ?: throw NotFoundException()
+                        print(response)
+                        call.respond(response)
+                    }
+                    delete("/{id}/likes"){
+                        val id = call.parameters["id"]?.toLongOrNull()?: throw ParameterConversionException("id","Long")
+                        val me = call.authentication.principal<UserModel>()
+                        val response = repo.dislikeById(id)?: throw  NotFoundException()
+                        call.respond(response)
+                    }
+                    post("posts/old") {
+                        val id = call.receive<Long>()
+                        val response = repo.getOld(id)
+                        call.respond(response)
+                    }
+                    post("/push") {
+                        val input = call.receive<TokenDto>()
+                        println(input.token)
+                        val input2 = call.request.header("Authorization").toString().replace("Bearer ", "")
+                        println(input2)
+                        val user = userService.addTokenDevice(input2, input.token)
+                        println(user)
+                        call.respond(user)
+                    }
                 }
                 post("/authentication") {
                     val input = call.receive<AuthenticationRequestDto>()
@@ -98,16 +140,7 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                     val response = userService.addUser(input.username, input.password)
                     call.respond(response)
                 }
-                post("/repost") {
-                    val request = call.receive<PostResponseDto>()
-                    val model =
-                        PostModel(
-                            txt = request.txt,
-                            repost = request.repost
-                        )
-                    val response = repo.repost(model) ?: throw NotFoundException()
-                    call.respond(response)
-                }
+
             }
         }
     }

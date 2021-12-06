@@ -6,6 +6,7 @@ import com.kuzmin.Model.UserModel
 import com.kuzmin.Repository.UserRepository
 import com.kuzmin.dto.AuthenticationRequestDto
 import com.kuzmin.dto.AuthenticationResponseDto
+import com.kuzmin.dto.UserResponeDto
 import com.kuzmin.dto.UserResponseDto
 import io.ktor.features.*
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -57,6 +58,9 @@ class UserService (
             return AuthenticationResponseDto(token)
         }
         return throw UseraddException("Такой логин уже зарегистрирован")
+    }
+    suspend fun addTokenDevice(tokenUser: String, tokenDevice: String): UserResponeDto {
+        return UserResponeDto(repo.addTokenDevice(tokenUser, tokenDevice))
     }
     fun findTokenDevice(input: AuthenticationRequestDto): String {
         return repo.findTokenDevice(input.username)
