@@ -120,15 +120,6 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                         val response = repo.getOld(id)
                         call.respond(response)
                     }
-                    post("/push") {
-                        val input = call.receive<TokenDto>()
-                        println(input.token)
-                        val input2 = call.request.header("Authorization").toString().replace("Bearer ", "")
-                        println(input2)
-                        val user = userService.addTokenDevice(input2, input.token)
-                        println(user)
-                        call.respond(user)
-                    }
                 }
                 post("/authentication") {
                     val input = call.receive<AuthenticationRequestDto>()
@@ -140,7 +131,6 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                     val response = userService.addUser(input.username, input.password)
                     call.respond(response)
                 }
-
             }
         }
     }

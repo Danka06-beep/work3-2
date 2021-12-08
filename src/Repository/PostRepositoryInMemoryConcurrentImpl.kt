@@ -43,36 +43,38 @@ class PostRepositoryInMemoryConcurrentImpl : PostRepository {
             }
         }
     }
-
     override suspend fun removeById(id: Long) {
         items.removeIf { it.id == id }
     }
 
-    override suspend fun likeById(id: Long): PostModel? {
-        return when (val index = items.indexOfFirst { it.id == id }) {
-            -1 -> null
-            else -> {
-                val item = items[index]
-                val copy = item.copy(likeTxt = item.likeTxt + 1)
-                items[index] = copy
-                File("pst.json").writeText(Gson().toJson(items))
-                copy
+    override suspend fun likeById(id: Long): PostModel? =
+        mutex.withLock {
+            val index = items.indexOfFirst { it.id == id }
+            if (index < 0) {
+                return@withLock null
             }
+            val post = items[index]
+            val newPost = post.copy(likeTxt = post.likeTxt.inc(), like = true)
+            items[index] = newPost
+            File("pst.json").writeText(Gson().toJson(items))
+            items
+            newPost
         }
-    }
 
-    override suspend fun dislikeById(id: Long): PostModel? {
-        return when (val index = items.indexOfFirst { it.id == id }) {
-            -1 -> null
-            else -> {
-                val item = items[index]
-                val copy = item.copy(likeTxt = item.likeTxt - 1)
-                items[index] = copy
-                File("pst.json").writeText(Gson().toJson(items))
-                copy
+
+    override suspend fun dislikeById(id: Long): PostModel? =
+        mutex.withLock {
+            val index = items.indexOfFirst { it.id == id }
+            if (index < 0) {
+                return@withLock null
             }
+            val post = items[index]
+            val newPost = post.copy(likeTxt = post.likeTxt.dec(), like = false)
+            items[index] = newPost
+            File("pst.json").writeText(Gson().toJson(items))
+            items
+            newPost
         }
-    }
 
     override suspend fun new(txt: String?, author: String?): List<PostModel> =
         mutex.withLock {
@@ -80,9 +82,7 @@ class PostRepositoryInMemoryConcurrentImpl : PostRepository {
             items.add(new)
             File("pst.json").writeText(Gson().toJson(items))
             items
-
         }
-
     override suspend fun repost(item: PostModel): PostModel? =
         mutex.withLock {
             val index = items.indexOfFirst { it.id == item.id }
@@ -96,7 +96,6 @@ class PostRepositoryInMemoryConcurrentImpl : PostRepository {
             File("pst.json").writeText(Gson().toJson(items))
             newPost
         }
-
     override suspend fun getfive(): List<PostModel> =
         mutex.withLock {
             File("pst.json").writeText(Gson().toJson(items))

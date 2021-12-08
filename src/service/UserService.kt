@@ -59,13 +59,6 @@ class UserService (
         }
         return throw UseraddException("Такой логин уже зарегистрирован")
     }
-    suspend fun addTokenDevice(tokenUser: String, tokenDevice: String): UserResponeDto {
-        return UserResponeDto(repo.addTokenDevice(tokenUser, tokenDevice))
-    }
-    fun findTokenDevice(input: AuthenticationRequestDto): String {
-        return repo.findTokenDevice(input.username)
-    }
-    fun findTokenDeviceUser(input: String): String {
-        return repo.findTokenDevice(input)
-    }
+
+
 }

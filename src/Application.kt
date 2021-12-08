@@ -64,12 +64,9 @@ fun Application.module(testing: Boolean = false) {
         bind<UserRepository>() with eagerSingleton { UserRepositoryInMemoryWithMutexImpl() }
         bind<UserService>() with eagerSingleton {
             UserService(instance(), instance(), instance()).apply {
-
             }
         }
     }
-
-
     install(Authentication) {
         jwt {
             val jwtService by kodein().instance<JWTTokenService>()
