@@ -62,25 +62,18 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                         val response = PostResponseDto.fromModel(model)
                         call.respond(response)
                     }
-                    post("/like") {
-                        val request = call.receive<PostRequestDto>()
-                        val response = repo.likeById(request.id) ?: throw NotFoundException()
-                        call.respond(response)
-                    }
-                    post("/dislike") {
-                        val request = call.receive<PostRequestDto>()
-                        val response = repo.dislikeById(request.id) ?: throw NotFoundException()
-                        call.respond(response)
-                    }
+
                     get("/posts") {
                         val response = repo.getAll()
                         call.respond(response)
                     }
 
                     post("/new") {
-                        val request = call.receive<NewPostDto>()
+                        val request = call.receive<PostResponseDto>()
                         print(request.toString())
-                        val response = repo.new(request.txt.toString(), request.author) ?: throw NotFoundException()
+                        val me = call.authentication.principal<UserModel>()
+                        val response = repo.newPost(request.txt.toString(), request.attachment, me?.username)
+                            ?: throw NotFoundException()
                         call.respond(response)
                     }
                     post("/changePassword") {
@@ -105,14 +98,14 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                         val id = call.parameters["id"]?.toLongOrNull()
                             ?: throw ParameterConversionException("id", "Long")
                         val me = call.authentication.principal<UserModel>()
-                        val response = repo.likeById(id) ?: throw NotFoundException()
+                        val response = repo.likeById(id,me?.id) ?: throw NotFoundException()
                         print(response)
                         call.respond(response)
                     }
                     delete("/{id}/likes"){
                         val id = call.parameters["id"]?.toLongOrNull()?: throw ParameterConversionException("id","Long")
                         val me = call.authentication.principal<UserModel>()
-                        val response = repo.dislikeById(id)?: throw  NotFoundException()
+                        val response = repo.dislikeById(id,me?.id)?: throw  NotFoundException()
                         call.respond(response)
                     }
                     post("posts/old") {

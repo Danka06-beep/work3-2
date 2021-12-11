@@ -1,6 +1,7 @@
 package com.kuzmin.Repository
 
 import com.google.gson.Gson
+import com.kuzmin.Exception.ActionProhibitedException
 import com.kuzmin.Model.AttachmentModel
 import com.kuzmin.Model.PostModel
 import com.kuzmin.Model.PostType
@@ -47,13 +48,16 @@ class PostRepositoryInMemoryConcurrentImpl : PostRepository {
         items.removeIf { it.id == id }
     }
 
-    override suspend fun likeById(id: Long): PostModel? =
+    override suspend fun likeById(id: Long, userId: Long?): PostModel? =
         mutex.withLock {
             val index = items.indexOfFirst { it.id == id }
             if (index < 0) {
                 return@withLock null
             }
             val post = items[index]
+            if (post.postIsLike.contains(userId)) {
+                return throw ActionProhibitedException("действие запрешено")
+            }
             val newPost = post.copy(likeTxt = post.likeTxt.inc(), like = true)
             items[index] = newPost
             File("pst.json").writeText(Gson().toJson(items))
@@ -62,13 +66,16 @@ class PostRepositoryInMemoryConcurrentImpl : PostRepository {
         }
 
 
-    override suspend fun dislikeById(id: Long): PostModel? =
+    override suspend fun dislikeById(id: Long,userId: Long?): PostModel? =
         mutex.withLock {
             val index = items.indexOfFirst { it.id == id }
             if (index < 0) {
                 return@withLock null
             }
             val post = items[index]
+            if (!post.postIsLike.contains(userId)) {
+                return throw ActionProhibitedException("действие запрешено")
+            }
             val newPost = post.copy(likeTxt = post.likeTxt.dec(), like = false)
             items[index] = newPost
             File("pst.json").writeText(Gson().toJson(items))
