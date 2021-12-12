@@ -5,6 +5,7 @@ import com.kuzmin.Exception.ActionProhibitedException
 import com.kuzmin.Model.AttachmentModel
 import com.kuzmin.Model.PostModel
 import com.kuzmin.Model.PostType
+import com.kuzmin.Model.RepostModel
 import com.kuzmin.PostData
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -90,6 +91,18 @@ class PostRepositoryInMemoryConcurrentImpl : PostRepository {
             File("pst.json").writeText(Gson().toJson(items))
             items
         }
+
+    override suspend fun repost(item: RepostModel): RepostModel? =
+        mutex.withLock {
+            val index = items.indexOfFirst { it.id == item.id }
+            if(index < 0){
+                return@withLock null
+            }
+
+
+        }
+
+
     override suspend fun repost(item: PostModel): PostModel? =
         mutex.withLock {
             val index = items.indexOfFirst { it.id == item.id }

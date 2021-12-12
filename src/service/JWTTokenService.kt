@@ -11,6 +11,5 @@ class JWTTokenService {
     val verifier: JWTVerifier = JWT.require(algo).build()
     fun generate(id: Long): String = JWT.create()
         .withClaim("id", id)
-        .withExpiresAt(Date(System.currentTimeMillis() + 1000000))
         .sign(algo)
 }
