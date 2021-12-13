@@ -1,6 +1,7 @@
 package com.kuzmin.route
 
 import com.kuzmin.Model.PostModel
+import com.kuzmin.Model.RepostModel
 import com.kuzmin.Model.UserModel
 import com.kuzmin.Repository.PostRepository
 import com.kuzmin.dto.*
@@ -85,11 +86,12 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                         }
                     }
                     post("/repost") {
-                        val request = call.receive<PostResponseDto>()
+                        val request = call.receive<RepostResponseDto>()
                         val model =
-                            PostModel(
-                                txt = request.txt,
-                                repost = request.repost
+                            RepostModel(
+                                id = request.id,
+                                authorRepost = request.authorRepost,
+                                txtRepost = request.txtRepost
                             )
                         val response = repo.repost(model) ?: throw NotFoundException()
                         call.respond(response)

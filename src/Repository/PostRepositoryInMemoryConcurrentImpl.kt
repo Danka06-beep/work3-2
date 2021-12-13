@@ -7,6 +7,7 @@ import com.kuzmin.Model.PostModel
 import com.kuzmin.Model.PostType
 import com.kuzmin.Model.RepostModel
 import com.kuzmin.PostData
+import com.kuzmin.RepostData
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -14,6 +15,7 @@ import java.io.File
 
 class PostRepositoryInMemoryConcurrentImpl : PostRepository {
     private var nextId = 1L
+    private var itemes = RepostData.getDataBaseRepost()
     private val items = PostData.getDataBase()
     private val mutex = Mutex()
     override suspend fun getAll(): List<PostModel> =
@@ -94,28 +96,20 @@ class PostRepositoryInMemoryConcurrentImpl : PostRepository {
 
     override suspend fun repost(item: RepostModel): RepostModel? =
         mutex.withLock {
-            val index = items.indexOfFirst { it.id == item.id }
-            if(index < 0){
+            val index = itemes.indexOfFirst { it.id == item.id }
+             println(index)
+            if (index < 0){
                 return@withLock null
             }
-
-
+             val repost = itemes[index]
+            val newRepost = repost.copy(id = itemes.size.toLong(),authorRepost = null,txtRepost = null)
+            itemes.add(newRepost)
+            File("repsot.json").writeText(Gson().toJson(itemes))
+            newRepost
         }
 
 
-    override suspend fun repost(item: PostModel): PostModel? =
-        mutex.withLock {
-            val index = items.indexOfFirst { it.id == item.id }
-            println(index)
-            if (index < 0) {
-                return@withLock null
-            }
-            val post = items[index]
-            val newPost = post.copy(id = items.size.toLong(), type = PostType.Reposts)
-            items.add(newPost)
-            File("pst.json").writeText(Gson().toJson(items))
-            newPost
-        }
+
     override suspend fun getfive(): List<PostModel> =
         mutex.withLock {
             File("pst.json").writeText(Gson().toJson(items))
