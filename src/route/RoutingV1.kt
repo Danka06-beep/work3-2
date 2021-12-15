@@ -87,14 +87,17 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                     }
                     post("/repost") {
                         val request = call.receive<RepostResponseDto>()
-                        val model =
-                            RepostModel(
-                                id = request.id,
-                                authorRepost = request.authorRepost,
-                                txtRepost = request.txtRepost
-                            )
-                        val response = repo.repost(model) ?: throw NotFoundException()
-                        call.respond(response)
+                        val me = call.authentication.principal<UserModel>()
+                        if (me != null) {
+                            val model =
+                                RepostModel(
+                                    id = request.id,
+                                    authorRepost = me.username,
+                                    txtRepost = request.txtRepost
+                                )
+                            val response = repo.repost(model) ?: throw NotFoundException()
+                            call.respond(response)
+                        }
                     }
                     post("/{id}/like"){
                         val id = call.parameters["id"]?.toLongOrNull()

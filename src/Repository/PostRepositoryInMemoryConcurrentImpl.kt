@@ -15,7 +15,6 @@ import java.io.File
 
 class PostRepositoryInMemoryConcurrentImpl : PostRepository {
     private var nextId = 1L
-    private var itemes = RepostData.getDataBaseRepost()
     private val items = PostData.getDataBase()
     private val mutex = Mutex()
     override suspend fun getAll(): List<PostModel> =
@@ -94,17 +93,17 @@ class PostRepositoryInMemoryConcurrentImpl : PostRepository {
             items
         }
 
-    override suspend fun repost(item: RepostModel): RepostModel? =
+    override suspend fun repost(item: RepostModel): PostModel? =
         mutex.withLock {
-            val index = itemes.indexOfFirst { it.id == item.id }
+            val index = items.indexOfFirst { it.id == item.id }
              println(index)
             if (index < 0){
                 return@withLock null
             }
-             val repost = itemes[index]
-            val newRepost = repost.copy(id = itemes.size.toLong(),authorRepost = null,txtRepost = null)
-            itemes.add(newRepost)
-            File("repsot.json").writeText(Gson().toJson(itemes))
+             val repost = items[index]
+            val newRepost = repost.copy(id = items.size.toLong(),author = item.authorRepost,txt = item.txtRepost,type = PostType.Reposts, repost = repost )
+            items.add(newRepost)
+            File("pst.json").writeText(Gson().toJson(items))
             newRepost
         }
 

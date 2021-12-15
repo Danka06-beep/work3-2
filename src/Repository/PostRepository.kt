@@ -12,7 +12,7 @@ interface PostRepository {
     suspend fun likeById(id: Long, userId:Long?): PostModel?
     suspend fun dislikeById(id: Long,userId:Long?): PostModel?
     suspend fun new(txt: String?, author: String?): List<PostModel>
-    suspend fun repost(item: RepostModel): RepostModel?
+    suspend fun repost(item: RepostModel): PostModel?
     suspend fun getfive():List<PostModel>
     suspend fun getOld(id: Long): List<PostModel>
     suspend fun newPost(txt: String?, attachment: AttachmentModel?, autorName: String?): List<PostModel>
