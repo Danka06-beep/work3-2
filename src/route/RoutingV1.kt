@@ -36,14 +36,8 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                 }
 
                 authenticate {
-                    route("/media") {
-                        post {
-                            val multipart = call.receiveMultipart()
-                            val response = fileService.save(multipart)
-                            call.respond(response)
 
-                        }
-                    }
+
                     route("/me") {
                         get {
                             val me = call.authentication.principal<UserModel>()
@@ -85,6 +79,13 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                             call.respond("Пароль успешно изменён")
                         }
                     }
+
+                    post ("/media") {
+                        val multipart = call.receiveMultipart()
+                        val response = fileService.save(multipart)
+                        call.respond(response)
+                    }
+
                     post("/repost") {
                         val request = call.receive<RepostResponseDto>()
                         val me = call.authentication.principal<UserModel>()
