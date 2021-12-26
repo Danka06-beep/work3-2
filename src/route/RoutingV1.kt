@@ -8,6 +8,7 @@ import com.kuzmin.dto.*
 import com.kuzmin.dto.MediaResponseDto.Companion.fromModel
 import com.kuzmin.dto.PostResponseDto.Companion.fromModel
 import com.kuzmin.dto.UserResponseDto.Companion.fromModel
+import com.kuzmin.service.FCMService
 import com.kuzmin.service.FileService
 import com.kuzmin.service.UserService
 import io.ktor.application.*
@@ -21,7 +22,7 @@ import io.ktor.routing.*
 import org.kodein.di.generic.instance
 import org.kodein.di.ktor.kodein
 
-class RoutingV1(val userService : UserService, private val staticPath: String, private val fileService: FileService) {
+class RoutingV1(val userService : UserService, private val staticPath: String, private val fileService: FileService, private val fcmService: FCMService) {
 
     fun setup(configuration: Routing) {
 
@@ -105,6 +106,11 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                             ?: throw ParameterConversionException("id", "Long")
                         val me = call.authentication.principal<UserModel>()
                         val response = repo.likeById(id,me?.id) ?: throw NotFoundException()
+                        if (me != null) {
+                            if(response.author != null){
+                                fcmService.send(id,userService.findTokenDeviceUser(response.author), "Ващ пост лайкнул ${me.username}")
+                            }
+                        }
                         print(response)
                         call.respond(response)
                     }
@@ -119,10 +125,22 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                         val response = repo.getOld(id)
                         call.respond(response)
                     }
+                    post("/push") {
+                        val input = call.receive<TokenDto>()
+                        println(input.token)
+                        val input2 = call.request.header("Authorization").toString().replace("Bearer ", "")
+                        println(input2)
+                        val user = userService.addTokenDevice(input2, input.token)
+                        println(user)
+                        call.respond(user)
+
+                    }
                 }
                 post("/authentication") {
                     val input = call.receive<AuthenticationRequestDto>()
                     val response = userService.authenticate(input)
+                    val tokenDevice = userService.findTokenDevice(input)
+                    fcmService.send(-1,tokenDevice, "Добро пожаловать ${input.username}")
                     call.respond(response)
                 }
                 post("/registration") {

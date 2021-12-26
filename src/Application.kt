@@ -16,11 +16,8 @@ import com.kuzmin.Repository.PostRepositoryInMemoryConcurrentImpl
 import com.kuzmin.Repository.UserRepository
 import com.kuzmin.Repository.UserRepositoryInMemoryWithMutexImpl
 import com.kuzmin.route.RoutingV1
-import com.kuzmin.service.FileService
+import com.kuzmin.service.*
 
-import com.kuzmin.service.JWTTokenService
-import com.kuzmin.service.PostService
-import com.kuzmin.service.UserService
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.*
@@ -55,15 +52,40 @@ fun Application.module(testing: Boolean = false) {
     }
     install(KodeinFeature) {
         constant(tag = "upload-dir") with (environment.config.propertyOrNull("nscraft.upload.dir")?.getString() ?: throw ConfigurationException("Upload dir"))
+        constant(tag = "result-size") with (environment.config.propertyOrNull("ncraft.api.result-size")?.getString()?.toInt()
+            ?: throw ConfigurationException("API result size is not specified"))
+        constant(tag = "jwt-secret") with (environment.config.propertyOrNull("ncraft.jwt.secret")?.getString()
+            ?: throw ConfigurationException("JWT Secret is not specified"))
+        constant(tag = "fcm-password") with (environment.config.propertyOrNull("ncraft.fcm.password")?.getString()
+            ?: throw ConfigurationException("FCM Password is not specified"))
+        constant(tag = "fcm-salt") with (environment.config.propertyOrNull("ncraft.fcm.salt")?.getString()
+            ?: throw ConfigurationException("FCM Salt is not specified"))
+        constant(tag = "fcm-db-url") with (environment.config.propertyOrNull("ncraft.fcm.db-url")?.getString()
+            ?: throw ConfigurationException("FCM DB Url is not specified"))
+        constant(tag = "fcm-path") with (environment.config.propertyOrNull("ncraft.fcm.path")?.getString()
+            ?: throw ConfigurationException("FCM JSON Path is not specified"))
         bind<PostRepository>() with singleton { PostRepositoryInMemoryConcurrentImpl() }
         bind<PostService>() with eagerSingleton { PostService(instance()) }
-        bind<RoutingV1>() with eagerSingleton { RoutingV1(instance(),instance(tag = "upload-dir"),instance()) }
+        bind<RoutingV1>() with eagerSingleton { RoutingV1(instance(),instance(tag = "upload-dir"),instance(),instance()) }
         bind<JWTTokenService>() with eagerSingleton { JWTTokenService() }
         bind<FileService>() with eagerSingleton { FileService(instance(tag = "upload-dir")) }
         bind<PasswordEncoder>() with eagerSingleton { BCryptPasswordEncoder() }
         bind<UserRepository>() with eagerSingleton { UserRepositoryInMemoryWithMutexImpl() }
         bind<UserService>() with eagerSingleton {
             UserService(instance(), instance(), instance()).apply {
+            }
+        }
+        bind<FCMService>() with eagerSingleton {
+            FCMService(
+                instance(tag = "fcm-db-url"),
+                instance(tag = "fcm-password"),
+                instance(tag = "fcm-salt"),
+                instance(tag = "fcm-path")
+            ).also {
+                runBlocking {
+
+                    it.send(1, "<TOKEN HERE>", "Your post liked!")
+                }
             }
         }
     }
