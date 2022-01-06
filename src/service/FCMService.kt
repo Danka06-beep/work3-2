@@ -13,7 +13,7 @@ import java.io.ByteArrayInputStream
 import java.nio.file.Files
 import java.nio.file.Paths
 
-class FCMService( private val dbUrl: String,
+class FCMService(
                   private val password: String,
                   private val salt: String,
                   private val path: String) {
@@ -22,7 +22,7 @@ class FCMService( private val dbUrl: String,
         val decrypted = decryptor.decrypt(Files.readAllBytes(Paths.get(path)))
         val options = FirebaseOptions.Builder()
             .setCredentials(GoogleCredentials.fromStream(ByteArrayInputStream(decrypted)))
-            .setDatabaseUrl(dbUrl)
+
             .build()
         FirebaseApp.initializeApp(options)
     }

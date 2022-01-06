@@ -52,16 +52,11 @@ fun Application.module(testing: Boolean = false) {
     }
     install(KodeinFeature) {
         constant(tag = "upload-dir") with (environment.config.propertyOrNull("nscraft.upload.dir")?.getString() ?: throw ConfigurationException("Upload dir"))
-        constant(tag = "result-size") with (environment.config.propertyOrNull("ncraft.api.result-size")?.getString()?.toInt()
-            ?: throw ConfigurationException("API result size is not specified"))
-        constant(tag = "jwt-secret") with (environment.config.propertyOrNull("ncraft.jwt.secret")?.getString()
-            ?: throw ConfigurationException("JWT Secret is not specified"))
         constant(tag = "fcm-password") with (environment.config.propertyOrNull("ncraft.fcm.password")?.getString()
             ?: throw ConfigurationException("FCM Password is not specified"))
         constant(tag = "fcm-salt") with (environment.config.propertyOrNull("ncraft.fcm.salt")?.getString()
             ?: throw ConfigurationException("FCM Salt is not specified"))
-        constant(tag = "fcm-db-url") with (environment.config.propertyOrNull("ncraft.fcm.db-url")?.getString()
-            ?: throw ConfigurationException("FCM DB Url is not specified"))
+
         constant(tag = "fcm-path") with (environment.config.propertyOrNull("ncraft.fcm.path")?.getString()
             ?: throw ConfigurationException("FCM JSON Path is not specified"))
         bind<PostRepository>() with singleton { PostRepositoryInMemoryConcurrentImpl() }
@@ -77,7 +72,6 @@ fun Application.module(testing: Boolean = false) {
         }
         bind<FCMService>() with eagerSingleton {
             FCMService(
-                instance(tag = "fcm-db-url"),
                 instance(tag = "fcm-password"),
                 instance(tag = "fcm-salt"),
                 instance(tag = "fcm-path")
