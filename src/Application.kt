@@ -52,12 +52,12 @@ fun Application.module(testing: Boolean = false) {
     }
     install(KodeinFeature) {
         constant(tag = "upload-dir") with (environment.config.propertyOrNull("nscraft.upload.dir")?.getString() ?: throw ConfigurationException("Upload dir"))
-        constant(tag = "fcm-password") with (environment.config.propertyOrNull("ncraft.fcm.password")?.getString()
+        constant(tag = "fcm-password") with (environment.config.propertyOrNull("nscraft.fcm.password")?.getString()
             ?: throw ConfigurationException("FCM Password is not specified"))
-        constant(tag = "fcm-salt") with (environment.config.propertyOrNull("ncraft.fcm.salt")?.getString()
+        constant(tag = "fcm-salt") with (environment.config.propertyOrNull("nscraft.fcm.salt")?.getString()
             ?: throw ConfigurationException("FCM Salt is not specified"))
 
-        constant(tag = "fcm-path") with (environment.config.propertyOrNull("ncraft.fcm.path")?.getString()
+        constant(tag = "fcm-path") with (environment.config.propertyOrNull("nscraft.fcm.path")?.getString()
             ?: throw ConfigurationException("FCM JSON Path is not specified"))
         bind<PostRepository>() with singleton { PostRepositoryInMemoryConcurrentImpl() }
         bind<PostService>() with eagerSingleton { PostService(instance()) }
@@ -78,7 +78,7 @@ fun Application.module(testing: Boolean = false) {
             ).also {
                 runBlocking {
 
-                    it.send(1, "<TOKEN HERE>", "Your post liked!")
+                    //it.send(1, "<TOKEN HERE>", "Your post liked!")
                 }
             }
         }

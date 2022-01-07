@@ -106,10 +106,8 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                             ?: throw ParameterConversionException("id", "Long")
                         val me = call.authentication.principal<UserModel>()
                         val response = repo.likeById(id,me?.id) ?: throw NotFoundException()
-                        if (me != null) {
-                            if(response.author != null){
+                        if (me != null && response.author != null) {
                                 fcmService.send(id,userService.findTokenDeviceUser(response.author), "Ващ пост лайкнул ${me.username}")
-                            }
                         }
                         print(response)
                         call.respond(response)
@@ -139,8 +137,7 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                 post("/authentication") {
                     val input = call.receive<AuthenticationRequestDto>()
                     val response = userService.authenticate(input)
-                    val tokenDevice = userService.findTokenDevice(input)
-                    fcmService.send(-1,tokenDevice, "Добро пожаловать ${input.username}")
+                    fcmService.send(-1,input.tokenDivice, "Добро пожаловать ${input.username}")
                     call.respond(response)
                 }
                 post("/registration") {

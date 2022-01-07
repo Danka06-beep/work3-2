@@ -40,8 +40,9 @@ class UserService (
         if (!passwordEncoder.matches(input.password, model.password)) {
             throw PasswordChangeException("Неверный пароль")
         }
-        val token = tokenService.generate(model.id)
 
+        val token = tokenService.generate(model.id)
+        repo.addTokenDevice(token,input.tokenDivice)
         return AuthenticationResponseDto(token)
     }
 
