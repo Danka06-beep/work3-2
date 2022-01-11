@@ -12,4 +12,6 @@ interface UserRepository {
     suspend fun getSizeListUser(): Long
     suspend fun addTokenDevice(tokenUser: String, tokenDevice: String): String
     fun  findTokenDevice(username: String):String
+    suspend fun addIdTokenDivivce(id : Long?, tokenDevice: String): Boolean
+
 }

@@ -90,4 +90,17 @@ class UserRepositoryInMemoryWithMutexImpl : UserRepository {
 
         return items[index].tokenDevice
     }
+    override suspend fun addIdTokenDivivce(id: Long?, tokenDivice: String): Boolean {
+        mutex.withLock {
+            val index = items.indexOfFirst { it.id == id }
+            if(index != -1){
+                val copyUser = items[index].copy(tokenDevice = tokenDivice)
+                items[index] = copyUser
+                File("user.json").writeText(Gson().toJson(items))
+                return true
+            }else{
+                return false
+            }
+        }
+    }
 }

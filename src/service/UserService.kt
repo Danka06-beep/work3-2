@@ -3,7 +3,9 @@ package com.kuzmin.service
 import com.kuzmin.Exception.PasswordChangeException
 import com.kuzmin.Exception.UseraddException
 import com.kuzmin.Model.UserModel
+
 import com.kuzmin.Repository.UserRepository
+import com.kuzmin.Repository.UserRepositoryInMemoryWithMutexImpl
 import com.kuzmin.dto.AuthenticationRequestDto
 import com.kuzmin.dto.AuthenticationResponseDto
 import com.kuzmin.dto.UserResponeDto
@@ -42,7 +44,6 @@ class UserService (
         }
 
         val token = tokenService.generate(model.id)
-        repo.addTokenDevice(token,input.tokenDivice)
         return AuthenticationResponseDto(token)
     }
 
@@ -70,6 +71,9 @@ class UserService (
     fun findTokenDeviceUser(input: String):String{
         val tokenDevice = repo.findTokenDevice(input)
         return tokenDevice
+    }
+    suspend fun IdTokenDivivce(id: Long?, tokenDevice: String): Boolean {
+        return (repo.addIdTokenDivivce(id,tokenDevice))
     }
 
 }
